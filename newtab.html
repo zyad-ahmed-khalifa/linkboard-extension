@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkBoard</title>
+  <link rel="icon" type="image/png" href="assets/icons/favicon.png">
+  <link rel="stylesheet" href="vendor/bootstrap.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+  <div id="customBackgroundLayer" aria-hidden="true"></div>
+  <div id="customBackgroundOverlay" aria-hidden="true"></div>
+  <main class="app-shell">
+    <nav class="topbar" aria-label="Main navigation">
+      <a class="brand" href="#" aria-label="LinkBoard home">
+        <span class="brand-mark" aria-hidden="true">🔗</span><span class="brand-name">LinkBoard</span>
+      </a>
+      <div class="workspace-tabs" role="tablist" aria-label="Workspaces">
+        <button class="add-tab" type="button" aria-label="Add workspace">+</button>
+      </div>
+      <div class="topbar-actions">
+
+        <button class="icon-button" id="searchButton" type="button" aria-label="Search">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="11" cy="11" r="7.5"></circle>
+            <path d="m20 20-3.6-3.6"></path>
+          </svg>
+        </button>
+        <button class="icon-button" id="settingsButton" type="button" aria-label="Settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path
+              d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5v.1h-4v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1-2.8-2.8.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3v-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1L7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.5V3h4v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1 2.8 2.8-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1h.1v4h-.1a1.7 1.7 0 0 0-1.5 1Z">
+            </path>
+          </svg>
+        </button>
+        <div class="dev-badge-wrapper" id="devBadgeWrapper">
+          <button class="dev-badge" id="devBadge" type="button" aria-label="Developer profile Zyad Ahmed"
+            aria-expanded="false" aria-haspopup="dialog" aria-controls="devPopover">
+            <span aria-hidden="true">💻</span><span class="dev-badge-name">Zyad</span>
+          </button>
+          <div class="dev-popover" id="devPopover" role="dialog" aria-label="Developer profile" hidden>
+            <div class="dev-popover-avatar" aria-hidden="true">💻</div>
+            <div class="dev-popover-name">ZYAD AHMED KHALIFA</div>
+            <div class="dev-popover-role">MEAN Stack Developer</div>
+            <div class="dev-popover-divider" aria-hidden="true"></div>
+            <div class="dev-popover-links">
+              <a href="https://github.com/zyad-ahmed-khalifa" target="_blank" rel="noreferrer"
+                aria-label="GitHub Zyad Ahmed" class="dev-link dev-github"><svg viewBox="0 0 16 16" aria-hidden="true">
+                  <path fill="currentColor"
+                    d="M8 0C3.58 0 0 3.58 0 8c0 3.53 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8 8 0 0016 8c0-4.42-3.58-8-8-8z">
+                  </path>
+                </svg><span>GitHub</span></a>
+              <a href="https://www.linkedin.com/in/zyad-ahmed-khalifa-92903b37b" target="_blank" rel="noreferrer"
+                aria-label="LinkedIn Zyad Ahmed" class="dev-link dev-linkedin"><svg viewBox="0 0 24 24"
+                  aria-hidden="true">
+                  <path fill="currentColor"
+                    d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.777 13.019H3.56V9h3.554v11.452z">
+                  </path>
+                </svg><span>LinkedIn</span></a>
+              <a href="https://wa.me/201033715203" target="_blank" rel="noreferrer" aria-label="WhatsApp Zyad Ahmed"
+                class="dev-link dev-whatsapp"><svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path fill="currentColor"
+                    d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413">
+                  </path>
+                </svg><span>WhatsApp</span></a>
+            </div>
+            <div class="dev-copyright">© 2026 Zyad Ahmed — LinkBoard</div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <section class="workspace" aria-label="Home workspace">
+      <div class="board-column">
+        <article class="board-card">
+          <header class="board-header"><span class="board-icon">⚡</span>
+            <h2>Frontend</h2><span class="link-count">3</span><button class="more-button" type="button"
+              aria-label="Frontend options">•••</button>
+          </header>
+          <div class="link-list">
+            <a class="link-row" href="https://angular.dev" rel="noreferrer"><span
+                class="site-icon angular">A</span><span
+                class="link-copy"><strong>Angular</strong><small>angular.dev</small><em>Modern web framework by
+                  Google</em></span><span class="external">↗</span></a>
+            <a class="link-row" href="https://getbootstrap.com" rel="noreferrer"><span
+                class="site-icon bootstrap">B</span><span
+                class="link-copy"><strong>Bootstrap</strong><small>getbootstrap.com</small><em>Responsive CSS component
+                  framework</em></span><span class="external">↗</span></a>
+            <a class="link-row" href="https://developer.mozilla.org" rel="noreferrer"><span
+                class="site-icon mdn">MD</span><span class="link-copy"><strong>MDN Web
+                  Docs</strong><small>developer.mozilla.org</small><em>Comprehensive web development
+                  reference</em></span><span class="external">↗</span></a>
+          </div>
+          <footer><button class="add-link" type="button">+ &nbsp;Add Link</button></footer>
+        </article>
+        <article class="board-card">
+          <header class="board-header"><span class="board-icon">🤖</span>
+            <h2>AI Tools</h2><span class="link-count">3</span><button class="more-button" type="button"
+              aria-label="AI Tools options">•••</button>
+          </header>
+          <div class="link-list">
+            <a class="link-row" href="https://chat.openai.com" rel="noreferrer"><span
+                class="site-icon openai">✳</span><span
+                class="link-copy"><strong>ChatGPT</strong><small>chat.openai.com</small><em>AI assistant by
+                  OpenAI</em></span><span class="external">↗</span></a>
+            <a class="link-row" href="https://claude.ai" rel="noreferrer"><span class="site-icon claude">✦</span><span
+                class="link-copy"><strong>Claude</strong><small>claude.ai</small><em>AI assistant by
+                  Anthropic</em></span><span class="external">↗</span></a>
+            <a class="link-row" href="https://v0.dev" rel="noreferrer"><span class="site-icon v0">v0</span><span
+                class="link-copy"><strong>v0 by
+                  Vercel</strong><small>v0.dev</small><em>AI-powered UI code generation</em></span><span
+                class="external">↗</span></a>
+          </div>
+          <footer><button class="add-link" type="button">+ &nbsp;Add Link</button></footer>
+        </article>
+        <button class="add-board" type="button" data-add-board="0">+ Add Board</button>
+      </div>
+
+      <div class="board-column">
+        <article class="board-card">
+          <header class="board-header"><span class="board-icon">⚙️</span>
+            <h2>Backend</h2><span class="link-count">3</span><button class="more-button" type="button"
+              aria-label="Backend options">•••</button>
+          </header>
+          <div class="link-list">
+            <a class="link-row" href="https://nodejs.org" rel="noreferrer"><span class="site-icon node">JS</span><span
+                class="link-copy"><strong>Node.js</strong><small>nodejs.org</small><em>JavaScript runtime built on
+                  V8</em></span><span class="external">↗</span></a>
+            <a class="link-row" href="https://www.postgresql.org" rel="noreferrer"><span
+                class="site-icon postgres">◈</span><span
+                class="link-copy"><strong>PostgreSQL</strong><small>postgresql.org</small><em>Advanced open-source
+                  relational database</em></span><span class="external">↗</span></a>
+            <a class="link-row" href="https://redis.io" rel="noreferrer"><span class="site-icon redis">◆</span><span
+                class="link-copy"><strong>Redis</strong><small>redis.io</small><em>In-memory data structure
+                  store</em></span><span class="external">↗</span></a>
+          </div>
+          <footer><button class="add-link" type="button">+ &nbsp;Add Link</button></footer>
+        </article>
+        <article class="board-card">
+          <header class="board-header"><span class="board-icon">🔧</span>
+            <h2>Dev Tools</h2><span class="link-count">3</span><button class="more-button" type="button"
+              aria-label="Dev Tools options">•••</button>
+          </header>
+          <div class="link-list">
+            <a class="link-row" href="https://github.com" rel="noreferrer"><span class="site-icon github">●</span><span
+                class="link-copy"><strong>GitHub</strong><small>github.com</small><em>Git hosting and collaboration
+                  platform</em></span><span class="external">↗</span></a>
+            <a class="link-row" href="https://vercel.com" rel="noreferrer"><span class="site-icon vercel">▲</span><span
+                class="link-copy"><strong>Vercel</strong><small>vercel.com</small><em>Frontend cloud deployment
+                  platform</em></span><span class="external">↗</span></a>
+            <a class="link-row" href="https://code.visualstudio.com" rel="noreferrer"><span
+                class="site-icon vscode">▦</span><span class="link-copy"><strong>VS
+                  Code</strong><small>code.visualstudio.com</small><em>Extensible source code editor</em></span><span
+                class="external">↗</span></a>
+          </div>
+          <footer><button class="add-link" type="button">+ &nbsp;Add Link</button></footer>
+        </article>
+        <button class="add-board" type="button" data-add-board="1">+ Add Board</button>
+      </div>
+
+      <div class="board-column">
+        <article class="board-card">
+          <header class="board-header"><span class="board-icon">🎨</span>
+            <h2>Design</h2><span class="link-count">3</span><button class="more-button" type="button"
+              aria-label="Design options">•••</button>
+          </header>
+          <div class="link-list">
+            <a class="link-row" href="https://figma.com" rel="noreferrer"><span class="site-icon figma">F</span><span
+                class="link-copy"><strong>Figma</strong><small>figma.com</small><em>Collaborative interface design
+                  tool</em></span><span class="external">↗</span></a>
+            <a class="link-row" href="https://www.radix-ui.com" rel="noreferrer"><span
+                class="site-icon radix">R</span><span class="link-copy"><strong>Radix
+                  UI</strong><small>radix-ui.com</small><em>Unstyled accessible component primitives</em></span><span
+                class="external">↗</span></a>
+            <a class="link-row" href="https://dribbble.com" rel="noreferrer"><span
+                class="site-icon dribbble">●</span><span
+                class="link-copy"><strong>Dribbble</strong><small>dribbble.com</small><em>Design inspiration and
+                  portfolios</em></span><span class="external">↗</span></a>
+          </div>
+          <footer><button class="add-link" type="button">+ &nbsp;Add Link</button></footer>
+        </article>
+        <article class="board-card">
+          <header class="board-header"><span class="board-icon">📚</span>
+            <h2>Docs</h2><span class="link-count">2</span><button class="more-button" type="button"
+              aria-label="Docs options">•••</button>
+          </header>
+          <div class="link-list">
+            <a class="link-row" href="https://react.dev" rel="noreferrer"><span class="site-icon react">⚛</span><span
+                class="link-copy"><strong>React</strong><small>react.dev</small><em>Official React
+                  documentation</em></span><span class="external">↗</span></a>
+            <a class="link-row" href="https://vitejs.dev" rel="noreferrer"><span class="site-icon vite">V</span><span
+                class="link-copy"><strong>Vite</strong><small>vitejs.dev</small><em>Next-generation frontend build
+                  tool</em></span><span class="external">↗</span></a>
+          </div>
+          <footer><button class="add-link" type="button">+ &nbsp;Add Link</button></footer>
+        </article>
+        <button class="add-board" type="button" data-add-board="2">+ Add Board</button>
+      </div>
+
+      <div class="board-column empty-column" data-column-id="3"><button class="add-board" type="button"
+          data-add-board="3">+ Add Board</button></div>
+    </section>
+  </main>
+
+  <div class="modal fade" id="searchModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog search-dialog">
+      <div class="modal-content">
+        <div class="search-input-wrap"><svg viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="7.5"></circle>
+            <path d="m20 20-3.6-3.6"></path>
+          </svg><input id="searchInput" type="search" placeholder="Search links, boards, tabs..."
+            aria-label="Search"><button type="button" data-search-action="close">ESC</button></div>
+        <div id="searchResults" class="search-results">
+          <p class="search-hint">Type to search across all tabs, boards, and links.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="settingsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog settings-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="settings-heading"><strong>Settings</strong><button type="button" data-bs-dismiss="modal"
+            aria-label="Close">×</button></div>
+        <div class="settings-layout">
+          <nav class="settings-nav" aria-label="Settings sections"><button class="settings-nav-item active"
+              type="button" data-settings-tab="theme" aria-controls="settingsThemePanel" aria-selected="true">🎨
+              <span>Theme</span></button><button class="settings-nav-item" type="button" data-settings-tab="background"
+              aria-controls="settingsBackgroundPanel" aria-selected="false">🖼️ <span>Background</span></button></nav>
+          <div class="settings-panels">
+            <section class="settings-panel active" id="settingsThemePanel" data-settings-panel="theme" role="tabpanel">
+              <h2>Theme</h2>
+              <p>Choose your LinkBoard appearance</p>
+              <div class="theme-gallery"><button class="theme-card" type="button" data-theme-id="dark"><span
+                    class="theme-preview preview-dark">🌙</span><strong>Dark</strong><small>Default · high
+                    contrast</small></button><button class="theme-card" type="button" data-theme-id="light"><span
+                    class="theme-preview preview-light">☀️</span><strong>Light</strong><small>Clean ·
+                    bright</small></button><button class="theme-card" type="button" data-theme-id="custom"><span
+                    class="theme-preview preview-custom">🎨</span><strong>Custom</strong><small>Your atmosphere
+                    color</small></button></div>
+              <div class="custom-theme-row" id="customThemeRow" hidden>
+                <div class="custom-mode-cards" role="radiogroup" aria-label="Custom theme mode">
+                  <button type="button" class="custom-mode-card selected" data-mode="solid" role="radio"
+                    aria-checked="true" tabindex="0">
+                    <span class="mode-icon solid-icon" aria-hidden="true">●</span>
+                    <span class="mode-text"><strong>Solid Color</strong><small>Use one color to build your
+                        theme</small></span>
+                  </button>
+                  <button type="button" class="custom-mode-card" data-mode="gradient" role="radio" aria-checked="false"
+                    tabindex="-1">
+                    <span class="mode-icon gradient-icon" aria-hidden="true">◐</span>
+                    <span class="mode-text"><strong>Gradient</strong><small>Blend two colors into your
+                        theme</small></span>
+                  </button>
+                </div>
+                <div class="custom-mode-radios" hidden aria-hidden="true">
+                  <label><input type="radio" name="customThemeMode" value="solid" checked> Solid</label>
+                  <label><input type="radio" name="customThemeMode" value="gradient"> Gradient</label>
+                </div>
+                <div id="solidColorControls">
+                  <div class="solid-picker-row">
+                    <div class="color-preview-large" id="solidPreview" style="background:#6366f1"></div>
+                    <div class="color-meta">
+                      <span class="color-hex-value" id="solidHex">#6366f1</span>
+                      <label class="color-choose-btn"><span>Choose color</span><input id="customThemeColor" type="color"
+                          value="#6366f1" aria-label="Solid color"></label>
+                    </div>
+                  </div>
+                  <small>One color drives the UI. Black stays black.</small>
+                </div>
+                <div id="gradientColorControls" hidden>
+                  <div class="gradient-preview-large" id="gradientPreviewLarge" aria-label="Gradient preview"
+                    style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)"></div>
+                  <div class="gradient-live-preview" id="gradientLivePreview" hidden
+                    style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)"></div>
+                  <div class="gradient-section">
+                    <label class="gradient-section-label">Gradient Type</label>
+                    <div class="segmented-control" role="radiogroup" aria-label="Gradient type">
+                      <button type="button" class="segmented-btn selected" data-gradient-type="linear" role="radio"
+                        aria-checked="true">Linear</button>
+                      <button type="button" class="segmented-btn" data-gradient-type="radial" role="radio"
+                        aria-checked="false">Radial</button>
+                    </div>
+                  </div>
+                  <div class="gradient-section">
+                    <label class="gradient-section-label">Colors</label>
+                    <div class="gradient-pickers-row">
+                      <label class="gradient-color-card" for="customGradientColor1">
+                        <span class="gcc-preview-wrap"><span class="gcc-dot" id="gradPreview1"
+                            style="background:#6366f1"></span><input id="customGradientColor1" type="color"
+                            value="#6366f1" aria-label="Start color"></span>
+                        <span class="gcc-meta"><span class="color-hex-value small" id="gradHex1">#6366f1</span><span
+                            class="gcc-label">Start Color</span></span>
+                      </label>
+                      <label class="gradient-color-card" for="customGradientColor2">
+                        <span class="gcc-preview-wrap"><span class="gcc-dot" id="gradPreview2"
+                            style="background:#8b5cf6"></span><input id="customGradientColor2" type="color"
+                            value="#8b5cf6" aria-label="End color"></span>
+                        <span class="gcc-meta"><span class="color-hex-value small" id="gradHex2">#8b5cf6</span><span
+                            class="gcc-label">End Color</span></span>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="gradient-section" id="gradientDirectionSection">
+                    <label class="gradient-section-label">Direction</label>
+                    <div class="direction-grid" role="radiogroup" aria-label="Gradient direction">
+                      <button type="button" class="dir-btn" data-dir="315deg" aria-label="Top left">↖</button>
+                      <button type="button" class="dir-btn" data-dir="0deg" aria-label="Top">↑</button>
+                      <button type="button" class="dir-btn" data-dir="45deg" aria-label="Top right">↗</button>
+                      <button type="button" class="dir-btn" data-dir="270deg" aria-label="Left">←</button>
+                      <button type="button" class="dir-btn dir-center" data-dir="center" aria-label="Center"
+                        disabled>•</button>
+                      <button type="button" class="dir-btn" data-dir="90deg" aria-label="Right">→</button>
+                      <button type="button" class="dir-btn" data-dir="225deg" aria-label="Bottom left">↙</button>
+                      <button type="button" class="dir-btn" data-dir="180deg" aria-label="Bottom">↓</button>
+                      <button type="button" class="dir-btn selected" data-dir="135deg"
+                        aria-label="Bottom right">↘</button>
+                    </div>
+                  </div>
+                  <div class="gradient-section">
+                    <label class="gradient-section-label">Presets</label>
+                    <div class="preset-grid">
+                      <button type="button" class="preset-btn" data-preset="midnight"
+                        style="background: linear-gradient(135deg, #0a0f1e 0%, #1e3a5f 100%)"
+                        aria-label="Midnight preset"><span>Midnight</span></button>
+                      <button type="button" class="preset-btn" data-preset="ocean"
+                        style="background: linear-gradient(135deg, #0f2b46 0%, #1e9bd3 100%)"
+                        aria-label="Ocean preset"><span>Ocean</span></button>
+                      <button type="button" class="preset-btn" data-preset="aurora"
+                        style="background: linear-gradient(135deg, #4c1d95 0%, #0e7490 100%)"
+                        aria-label="Aurora preset"><span>Aurora</span></button>
+                      <button type="button" class="preset-btn" data-preset="sunset"
+                        style="background: linear-gradient(135deg, #7c2d12 0%, #be185d 100%)"
+                        aria-label="Sunset preset"><span>Sunset</span></button>
+                      <button type="button" class="preset-btn" data-preset="ember"
+                        style="background: linear-gradient(135deg, #7f1d1d 0%, #c2410c 100%)"
+                        aria-label="Ember preset"><span>Ember</span></button>
+                      <button type="button" class="preset-btn" data-preset="arctic"
+                        style="background: linear-gradient(135deg, #1e3a5f 0%, #e0f2fe 100%)"
+                        aria-label="Arctic preset"><span>Arctic</span></button>
+                      <button type="button" class="preset-btn" data-preset="violet"
+                        style="background: linear-gradient(135deg, #4c1d95 0%, #86198f 100%)"
+                        aria-label="Violet preset"><span>Violet</span></button>
+                      <button type="button" class="preset-btn" data-preset="forest"
+                        style="background: linear-gradient(135deg, #064e3b 0%, #0e7490 100%)"
+                        aria-label="Forest preset"><span>Forest</span></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <section class="settings-panel" id="settingsBackgroundPanel" data-settings-panel="background"
+              role="tabpanel" hidden>
+              <h2>Background</h2>
+              <p>Customize your LinkBoard background</p>
+              <div class="background-mode"><label><input type="radio" name="backgroundMode" value="theme"> Theme
+                  Background</label><label><input type="radio" name="backgroundMode" value="custom"> Custom
+                  Image</label></div>
+              <div id="customBackgroundControls" class="custom-background-controls" hidden>
+                <div class="background-upload" id="backgroundUpload"><span class="upload-icon">▧</span><strong>Upload
+                    Image</strong><small>JPG, PNG, WEBP · up to 15 MB</small><button type="button"
+                    id="chooseBackgroundButton" class="modal-cancel">Choose Image</button><input
+                    id="backgroundFileInput" type="file" accept="image/jpeg,image/png,image/webp" hidden></div>
+                <div id="backgroundPreview" class="background-preview" hidden>
+                  <div class="background-preview-image">
+                    <div class="background-preview-overlay"></div>
+                  </div>
+                  <div class="background-preview-actions"><button type="button" id="changeBackgroundButton"
+                      class="modal-cancel">Change Image</button></div>
+                </div>
+                <p id="backgroundError" class="background-error" role="alert"></p>
+                <div class="background-options"><label><span>Opacity <output
+                        id="backgroundOpacityValue">82%</output></span><input id="backgroundOpacity" type="range"
+                      min="0" max="100" step="1" value="82"></label><label><span>Darkness <output
+                        id="backgroundDarknessValue">35%</output></span><input id="backgroundDarkness" type="range"
+                      min="0" max="100" step="1" value="35"></label><label><span>Blur <output
+                        id="backgroundBlurValue">0px</output></span><input id="backgroundBlur" type="range" min="0"
+                      max="24" step="1" value="0"></label><label><span>Fit</span><select id="backgroundSize">
+                      <option value="cover">Cover</option>
+                      <option value="contain">Contain</option>
+                    </select></label></div>
+                <div class="background-actions"><button type="button" id="saveBackgroundButton" class="modal-primary"
+                    disabled>Save Changes</button><button type="button" id="removeBackgroundButton"
+                    class="remove-background-button">Remove Background</button></div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tab-modal-backdrop" id="tabModal" hidden>
+    <section class="tab-modal" role="dialog" aria-modal="true" aria-labelledby="tabModalTitle">
+      <h2 id="tabModalTitle">Create New Tab</h2><label for="tabNameInput">Tab name</label><input id="tabNameInput"
+        type="text" placeholder="e.g. Research, Design" autocomplete="off">
+      <div class="board-icon-field" id="boardIconField"><label>Board icon</label>
+        <div class="icon-picker" id="iconPicker"></div>
+      </div>
+      <p class="tab-error" id="tabError" role="alert"></p>
+      <div class="tab-modal-actions"><button class="modal-cancel" type="button"
+          data-tab-action="cancel">Cancel</button><button class="modal-primary" type="button"
+          data-tab-action="confirm">Create</button></div>
+    </section>
+  </div>
+  <div class="tab-context-menu" id="tabContextMenu" hidden></div>
+  <div class="tab-modal-backdrop" id="confirmModal" hidden>
+    <section class="tab-modal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <h2 id="confirmTitle">Delete Tab?</h2>
+      <p id="confirmMessage" class="confirm-message"></p>
+      <div class="tab-modal-actions"><button class="modal-cancel" type="button"
+          data-tab-action="cancel-delete">Cancel</button><button class="modal-danger" type="button"
+          data-tab-action="confirm-delete">Delete Tab</button></div>
+    </section>
+  </div>
+  <div class="tab-modal-backdrop" id="linkModal" hidden>
+    <section class="tab-modal link-modal" role="dialog" aria-modal="true" aria-labelledby="linkModalTitle">
+      <h2 id="linkModalTitle">Add Link</h2><label for="linkUrlInput">URL</label><input id="linkUrlInput" type="url"
+        placeholder="https://example.com" autocomplete="off"><label for="linkNameInput">Name</label><input
+        id="linkNameInput" type="text" placeholder="e.g. GitHub" autocomplete="off"><label
+        for="linkDescriptionInput">Description <span>— optional</span></label><input id="linkDescriptionInput"
+        type="text" placeholder="Short description..." autocomplete="off">
+      <p class="tab-error" id="linkError" role="alert"></p>
+      <div class="tab-modal-actions"><button class="modal-cancel" type="button"
+          data-link-action="cancel">Cancel</button><button class="modal-primary" type="button"
+          data-link-action="confirm">Add Link</button></div>
+    </section>
+  </div>
+  <div class="tab-modal-backdrop" id="moveLinkModal" hidden>
+    <section class="tab-modal move-link-modal" role="dialog" aria-modal="true" aria-labelledby="moveLinkTitle">
+      <h2 id="moveLinkTitle">Move Link</h2><label for="moveTabSelect">Tab</label><select
+        id="moveTabSelect"></select><label for="moveColumnSelect">Column</label><select
+        id="moveColumnSelect"></select><label for="moveBoardSelect">Board</label><select id="moveBoardSelect"></select>
+      <p class="tab-error" id="moveLinkError" role="alert"></p>
+      <div class="tab-modal-actions"><button class="modal-cancel" type="button"
+          data-move-action="cancel">Cancel</button><button class="modal-primary" type="button"
+          data-move-action="confirm">Move Link</button></div>
+    </section>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,93 @@
+# LinkBoard Non-Commercial License
+
+Copyright (c) 2026 Zyad Ahmed
+
+All rights reserved except as expressly permitted below.
+
+## 1. Permission
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated source code (the "Software"), to:
+
+* View and inspect the source code.
+* Study the source code for learning and educational purposes.
+* Use the Software for personal, non-commercial purposes.
+* Modify the Software for personal, non-commercial purposes.
+* Create and submit contributions through Pull Requests.
+* Fork the repository for personal or educational purposes.
+
+These permissions are granted only for the purposes and under the conditions described in this license.
+
+## 2. Non-Commercial Restriction
+
+The Software may **not** be used for commercial purposes without prior written permission from the copyright holder.
+
+Without explicit written permission from Zyad Ahmed, you may not:
+
+* Sell the Software or any modified version of it.
+* Sell access to the Software.
+* Use the Software as part of a commercial product or service.
+* Use the Software to provide a commercial service.
+* Commercially redistribute the Software.
+* Commercially distribute modified or derivative versions.
+* Rebrand the Software and commercially distribute it.
+* Sublicense or license the Software to another party.
+* Claim the original Software as your own work.
+
+If you wish to use the Software commercially, you must obtain explicit written permission from the copyright holder.
+
+## 3. Contributions
+
+Contributions are welcome through Pull Requests.
+
+By submitting a contribution to this project, you represent that:
+
+* You have the right to submit the contribution.
+* Your contribution does not knowingly violate the rights of another person or organization.
+* You understand that accepted contributions may become part of the LinkBoard project.
+
+Accepted contributions remain subject to this license unless otherwise agreed in writing by the copyright holder.
+
+## 4. Attribution
+
+When sharing permitted copies or modifications of the Software for personal or educational purposes, the original copyright notice and this license must remain included.
+
+You may not remove or alter copyright notices belonging to the original LinkBoard project.
+
+## 5. Third-Party Components
+
+This license applies only to the original LinkBoard source code and other materials for which the copyright holder has the right to grant these permissions.
+
+Third-party libraries, frameworks, fonts, icons, images, assets, APIs, and other dependencies included in or used by LinkBoard may be subject to their own licenses.
+
+Nothing in this license grants permission to use third-party materials beyond the permissions provided by their respective licenses.
+
+## 6. Trademarks and Branding
+
+This license does not grant permission to use the LinkBoard name, logo, branding, or the name "Zyad Ahmed" for commercial purposes or in a manner that suggests endorsement or official affiliation.
+
+## 7. Disclaimer
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
+
+IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+## 8. Termination
+
+Any permission granted under this license automatically terminates if you violate the terms of this license.
+
+Upon termination, you must stop using, distributing, or modifying the Software except where applicable law or another valid license grants you a separate right to do so.
+
+## 9. Copyright
+
+Copyright (c) 2026 Zyad Ahmed
+
+LinkBoard is a source-available project and is **not an open-source project under the OSI Open Source Definition** because this license restricts commercial use.
+
+For commercial licensing or other permissions not granted by this license, contact the copyright holder.
+
+---
+
+**Project:** LinkBoard
+**Copyright Holder:** Zyad Ahmed
+**License:** LinkBoard Non-Commercial License
+**Year:** 2026
