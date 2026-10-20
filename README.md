@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # linkboard-extension
 =======
 # 🔗 LinkBoard
@@ -366,4 +365,3 @@ If you find LinkBoard useful or interesting, you can support the project by:
 Thanks for checking out **LinkBoard**! 🚀
 
 **© 2026 Zyad Ahmed — LinkBoard. All rights reserved except as expressly permitted by the project license.**
->>>>>>> de1e244e07e85cd8fc7cde21dc3cb17d837325ae
