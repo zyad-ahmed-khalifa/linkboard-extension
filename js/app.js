@@ -32,6 +32,7 @@
     linkBoardId: null,
     editingLinkId: null,
     moveLink: null,
+    moveBoard: null,
     themeId: 'dark',
     customThemeColor: '#6366f1',
     customThemeMode: 'solid',
@@ -71,6 +72,16 @@
   const moveColumnSelect = document.querySelector('#moveColumnSelect');
   const moveBoardSelect = document.querySelector('#moveBoardSelect');
   const moveLinkError = document.querySelector('#moveLinkError');
+  const moveBoardModal = document.querySelector('#moveBoardModal');
+  const moveBoardTabSelect = document.querySelector('#moveBoardTabSelect');
+  const moveBoardColumnSelect = document.querySelector('#moveBoardColumnSelect');
+  const moveBoardError = document.querySelector('#moveBoardError');
+  const importModal = document.querySelector('#importModal');
+  const importFileInput = document.querySelector('#importFileInput');
+  const importError = document.querySelector('#importError');
+  const importPreview = document.querySelector('#importPreview');
+  const exportOptionsModal = document.querySelector('#exportOptionsModal');
+  const exportOptionsError = document.querySelector('#exportOptionsError');
   const searchButton = document.querySelector('#searchButton');
   const searchModal = document.querySelector('#searchModal');
   const searchInput = document.querySelector('#searchInput');
@@ -80,6 +91,9 @@
   let settingsNavItems = document.querySelectorAll('[data-settings-tab]');
   let settingsPanels = document.querySelectorAll('[data-settings-panel]');
   const customThemeColor = document.querySelector('#customThemeColor');
+  const exportBackupButton = document.querySelector('#exportBackupButton');
+  const importBackupButton = document.querySelector('#importBackupButton');
+  const resetDataButton = document.querySelector('#resetDataButton');
   const themeCards = document.querySelectorAll('[data-theme-id]');
   const backgroundLayer = document.querySelector('#customBackgroundLayer');
   const backgroundOverlay = document.querySelector('#customBackgroundOverlay');
@@ -123,7 +137,8 @@
   textIconsNavItem.setAttribute('aria-controls', 'settingsTextIconsPanel');
   textIconsNavItem.setAttribute('aria-selected', 'false');
   textIconsNavItem.innerHTML = '🅰️ <span>Text & Icons</span>';
-  settingsNavItems[0].parentElement.append(textIconsNavItem);
+  const dataNavItem = settingsNavItems[0].parentElement.querySelector('[data-settings-tab="data"]');
+  settingsNavItems[0].parentElement.insertBefore(textIconsNavItem, dataNavItem);
   const textIconsPanel = document.createElement('section');
   textIconsPanel.className = 'settings-panel';
   textIconsPanel.id = 'settingsTextIconsPanel';
@@ -131,7 +146,9 @@
   textIconsPanel.setAttribute('role', 'tabpanel');
   textIconsPanel.hidden = true;
   textIconsPanel.innerHTML = '<h2>Text & Icons</h2><p>Customize how links appear</p><div class="display-setting"><label for="linkIconSize"><span>Link Icon Size <output id="linkIconSizeValue">16px</output></span><input id="linkIconSize" type="range" min="16" max="40" step="1" value="16"></label></div><div class="display-setting"><label for="linkTitleSize"><span>Link Title Size <output id="linkTitleSizeValue">13px</output></span><input id="linkTitleSize" type="range" min="12" max="24" step="1" value="13"></label></div><div class="display-setting"><label for="linkDescriptionSize"><span>Link Description Size <output id="linkDescriptionSizeValue">11px</output></span><input id="linkDescriptionSize" type="range" min="10" max="20" step="1" value="11"></label></div><div class="display-preview-section"><label>Preview</label><div class="display-link-preview"><span class="display-preview-icon">A</span><span class="display-preview-copy"><strong>OpenAI</strong><em>AI research and development</em><small>https://openai.com</small></span><span class="display-preview-external">↗</span></div><small class="display-preview-note">Changes are previewed before saving.</small></div><button class="display-default-button" type="button">Default</button><div class="background-actions display-actions"><button class="discard-display-button" type="button">Discard</button><button class="save-display-button" type="button">Save Changes</button></div>';
-  settingsNavItems[0].closest('.settings-layout').querySelector('.settings-panels').append(textIconsPanel);
+  const panelsContainer = settingsNavItems[0].closest('.settings-layout').querySelector('.settings-panels');
+  const dataPanel = panelsContainer.querySelector('[data-settings-panel="data"]');
+  panelsContainer.insertBefore(textIconsPanel, dataPanel);
   settingsNavItems = document.querySelectorAll('[data-settings-tab]');
   settingsPanels = document.querySelectorAll('[data-settings-panel]');
   const settingsActions = saveBackgroundButton.parentElement;
@@ -159,7 +176,6 @@
   const makeId = (prefix) => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const findTab = (id) => state.tabs.find((tab) => tab.id === id);
   const activeTab = () => findTab(state.activeTabId);
-  const homeTab = () => state.tabs[0];
   const tabNameTaken = (name, ignoredId = null) => state.tabs.some((tab) => tab.id !== ignoredId && tab.name.toLowerCase() === name.toLowerCase());
   const boardNameTaken = (name, ignoredId = null) => activeTab().boards.some((board) => board.id !== ignoredId && board.name.toLowerCase() === name.toLowerCase());
   const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
@@ -327,6 +343,46 @@
     state.moveLink = null;
   }
 
+  function renderMoveBoardTargets() {
+    moveBoardTabSelect.innerHTML = state.tabs.map((tab) => `<option value="${escapeHtml(tab.id)}">${escapeHtml(tab.name)}</option>`).join('');
+    moveBoardTabSelect.value = state.moveBoard.targetTabId;
+    moveBoardColumnSelect.innerHTML = columns.map((columnId, index) => `<option value="${columnId}">Column ${index + 1}</option>`).join('');
+    moveBoardColumnSelect.value = state.moveBoard.targetColumnId;
+  }
+
+  function openMoveBoardModal(boardId) {
+    const sourceBoard = activeTab().boards.find((board) => board.id === boardId);
+    if (!sourceBoard) return;
+    state.moveBoard = { boardId, sourceTabId: activeTab().id, sourceColumnId: sourceBoard.columnId, targetTabId: activeTab().id, targetColumnId: sourceBoard.columnId };
+    moveBoardError.textContent = '';
+    renderMoveBoardTargets();
+    moveBoardModal.hidden = false;
+    moveBoardTabSelect.focus();
+  }
+
+  function closeMoveBoardModal() {
+    moveBoardModal.hidden = true;
+    state.moveBoard = null;
+  }
+
+  function moveBoardToTab() {
+    const move = state.moveBoard;
+    const sourceTab = findTab(move.sourceTabId);
+    const targetTab = findTab(move.targetTabId);
+    const sourceBoard = sourceTab?.boards.find((board) => board.id === move.boardId);
+    if (!sourceBoard || !targetTab) { moveBoardError.textContent = 'Select a destination tab.'; return; }
+    const boardIndex = sourceTab.boards.findIndex((board) => board.id === move.boardId);
+    if (boardIndex < 0) return;
+    const [board] = sourceTab.boards.splice(boardIndex, 1);
+    board.columnId = move.targetColumnId;
+    targetTab.boards.push(board);
+    state.activeTabId = targetTab.id;
+    renderTabs();
+    renderColumns();
+    saveData();
+    closeMoveBoardModal();
+  }
+
   function moveLink() {
     const move = state.moveLink;
     const sourceTab = findTab(move.sourceTabId);
@@ -432,9 +488,15 @@
 
   function renderContextMenu(context) {
     const linkActions = context.kind === 'link';
-    contextMenu.innerHTML = linkActions
-      ? '<button type="button" data-context-action="open">Open link</button><button type="button" data-context-action="new-tab">Open in new tab</button><button type="button" data-context-action="edit">Edit</button><button type="button" data-context-action="move">Move to board</button><button type="button" data-context-action="copy">Copy URL</button><div class="context-separator"></div><button class="danger-item" type="button" data-context-action="delete">Delete</button>'
-      : '<button type="button" data-context-action="rename">Rename</button><button class="danger-item" type="button" data-context-action="delete">Delete</button>';
+    const boardActions = context.kind === 'board';
+    const tabActions = context.kind === 'tab';
+    if (linkActions) {
+      contextMenu.innerHTML = '<button type="button" data-context-action="open">Open link</button><button type="button" data-context-action="new-tab">Open in new tab</button><button type="button" data-context-action="edit">Edit</button><button type="button" data-context-action="move">Move to board</button><button type="button" data-context-action="copy">Copy URL</button><div class="context-separator"></div><button class="danger-item" type="button" data-context-action="delete">Delete</button>';
+    } else if (boardActions) {
+      contextMenu.innerHTML = '<button type="button" data-context-action="rename">Rename</button><button type="button" data-context-action="move-board">Move board</button><div class="context-separator"></div><button class="danger-item" type="button" data-context-action="delete">Delete</button>';
+    } else {
+      contextMenu.innerHTML = '<button type="button" data-context-action="rename">Rename</button><button class="danger-item" type="button" data-context-action="delete">Delete</button>';
+    }
   }
 
   function saveName() {
@@ -469,7 +531,6 @@
 
   function openContextMenu(event, context) {
     event.preventDefault();
-    if (context.kind === 'tab' && context.id === homeTab().id) return;
     state.context = context;
     renderContextMenu(context);
     contextMenu.style.left = `${Math.min(event.clientX, window.innerWidth - 180)}px`;
@@ -481,7 +542,11 @@
 
   function askDelete(kind, id) {
     const item = kind === 'tab' ? findTab(id) : kind === 'board' ? activeTab().boards.find((board) => board.id === id) : findLink(state.context.boardId, id);
-    if (!item || (kind === 'tab' && item.id === homeTab().id)) return;
+    if (!item) return;
+    if (kind === 'tab' && state.tabs.length <= 1) {
+      showNotification('You must keep at least one tab.', 'error');
+      return;
+    }
     state.pendingDelete = { kind, id, boardId: state.context?.boardId };
     confirmTitle.textContent = `Delete "${item.name}"?`;
     confirmMessage.textContent = kind === 'tab' ? 'All boards and links inside this tab will be removed permanently.' : kind === 'board' ? 'All links inside this board will be permanently removed.' : 'This link will be removed from the board.';
@@ -492,8 +557,12 @@
   function deleteBoard(id) { activeTab().boards = activeTab().boards.filter((board) => board.id !== id); renderColumns(); saveData(); }
 
   function deleteTab(id) {
+    if (state.tabs.length <= 1) {
+      showNotification('You must keep at least one tab.', 'error');
+      return;
+    }
     const index = state.tabs.findIndex((tab) => tab.id === id);
-    if (index < 1) return;
+    if (index < 0) return;
     state.tabs.splice(index, 1);
     if (state.activeTabId === id) state.activeTabId = state.tabs[Math.max(0, index - 1)].id;
     renderTabs(); renderColumns();
@@ -685,6 +754,419 @@
     try { parsed = new URL(url); } catch { return null; }
     if (!['http:', 'https:'].includes(parsed.protocol) || !parsed.hostname) return null;
     return { id: link.id, url, name: link.name.trim(), domain: parsed.hostname.replace(/^www\./, ''), description: typeof link.description === 'string' ? link.description : '', icon: typeof link.icon === 'string' ? link.icon : '↗', iconClass: typeof link.iconClass === 'string' ? link.iconClass : 'placeholder', favicon: typeof link.favicon === 'string' && link.favicon.startsWith('data:image/') ? link.favicon : '' };
+  }
+
+  const BACKUP_VERSION = 1;
+  const BACKUP_KEY = 'linkboardBackup';
+
+  function createBackupData(includeCustomization = false) {
+    const backup = {
+      version: BACKUP_VERSION,
+      exportedAt: new Date().toISOString(),
+      tabs: state.tabs.map((tab) => ({
+        id: tab.id,
+        name: tab.name,
+        boards: tab.boards.map((board) => ({
+          id: board.id,
+          name: board.name,
+          icon: board.icon,
+          columnId: board.columnId,
+          links: board.links.map((link) => ({
+            id: link.id,
+            url: link.url,
+            name: link.name,
+            domain: link.domain,
+            description: link.description,
+            icon: link.icon,
+            iconClass: link.iconClass,
+            favicon: link.favicon
+          }))
+        }))
+      })),
+      activeTabId: state.activeTabId
+    };
+
+    if (includeCustomization) {
+      backup.themeId = state.themeId;
+      backup.customThemeColor = state.customThemeColor;
+      backup.customThemeMode = state.customThemeMode;
+      backup.customGradientColor1 = state.customGradientColor1;
+      backup.customGradientColor2 = state.customGradientColor2;
+      backup.customGradientType = state.customGradientType;
+      backup.customGradientDirection = state.customGradientDirection;
+      backup.background = { ...state.savedBackground };
+      backup.displaySettings = { ...state.savedDisplaySettings };
+    }
+
+    return backup;
+  }
+
+  function openExportOptionsModal() {
+    closeSettings();
+    exportOptionsError.textContent = '';
+    exportOptionsModal.querySelector('input[name="exportOption"][value="data-only"]').checked = true;
+    exportOptionsModal.querySelector('.export-option-card.selected').classList.remove('selected');
+    exportOptionsModal.querySelector('[data-export-option="data-only"]').classList.add('selected');
+    exportOptionsModal.querySelectorAll('.export-option-card').forEach((card) => {
+      card.setAttribute('aria-checked', 'false');
+      card.tabIndex = -1;
+    });
+    exportOptionsModal.querySelector('[data-export-option="data-only"]').setAttribute('aria-checked', 'true');
+    exportOptionsModal.querySelector('[data-export-option="data-only"]').tabIndex = 0;
+    exportOptionsModal.querySelector('.export-options-notice').hidden = true;
+    exportOptionsModal.hidden = false;
+  }
+
+  function closeExportOptionsModal() {
+    exportOptionsModal.hidden = true;
+    exportOptionsError.textContent = '';
+  }
+
+  async function performExport(includeCustomization) {
+    try {
+      const backup = createBackupData(includeCustomization);
+      const json = JSON.stringify(backup, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const date = new Date();
+      const dateStr = date.toISOString().split('T')[0];
+      const suffix = includeCustomization ? '-full' : '';
+      const filename = `linkboard-backup${suffix}-${dateStr}.json`;
+      if (typeof chrome !== 'undefined' && chrome.downloads) {
+        const url = URL.createObjectURL(blob);
+        chrome.downloads.download({ url, filename, saveAs: true }, (downloadId) => {
+          URL.revokeObjectURL(url);
+          if (chrome.runtime.lastError) {
+            showNotification('Export failed: ' + chrome.runtime.lastError.message, 'error');
+          } else {
+            showNotification('Backup exported successfully', 'success');
+          }
+        });
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showNotification('Backup exported successfully', 'success');
+      }
+    } catch (error) {
+      showNotification('Export failed: ' + error.message, 'error');
+    }
+  }
+
+  function exportBackup() {
+    openExportOptionsModal();
+  }
+
+  function confirmExportOptions() {
+    const includeCustomization = exportOptionsModal.querySelector('input[name="exportOption"]:checked')?.value === 'full';
+    closeExportOptionsModal();
+    performExport(includeCustomization);
+  }
+
+  function validateBackup(data) {
+    if (!data || typeof data !== 'object') return { valid: false, error: 'Invalid backup file format.' };
+    if (typeof data.version !== 'number') return { valid: false, error: 'Unsupported backup format (missing version).' };
+    if (data.version > BACKUP_VERSION) return { valid: false, error: `Backup version ${data.version} is newer than supported (${BACKUP_VERSION}). Please update LinkBoard.` };
+    if (!Array.isArray(data.tabs)) return { valid: false, error: 'Backup is missing tabs data.' };
+    if (data.tabs.length === 0) return { valid: false, error: 'Backup contains no tabs.' };
+    const hasHomeTab = data.tabs.some((tab) => tab && tab.id === 'tab-home');
+    if (!hasHomeTab) return { valid: false, error: 'Backup is missing the required Home tab.' };
+    for (const tab of data.tabs) {
+      if (!tab || typeof tab.id !== 'string' || typeof tab.name !== 'string') return { valid: false, error: 'Invalid tab data in backup.' };
+      if (!Array.isArray(tab.boards)) return { valid: false, error: 'Invalid boards data in backup.' };
+      for (const board of tab.boards) {
+        if (!board || typeof board.id !== 'string' || typeof board.name !== 'string') return { valid: false, error: 'Invalid board data in backup.' };
+        if (!columns.includes(String(board.columnId))) return { valid: false, error: 'Invalid column ID in backup.' };
+        if (!Array.isArray(board.links)) return { valid: false, error: 'Invalid links data in backup.' };
+        for (const link of board.links) {
+          if (!link || typeof link.id !== 'string' || typeof link.name !== 'string' || typeof link.url !== 'string') return { valid: false, error: 'Invalid link data in backup.' };
+          try { new URL(link.url); } catch { return { valid: false, error: 'Invalid URL in backup.' }; }
+        }
+      }
+    }
+    return { valid: true };
+  }
+
+  function generateIdMap(items, prefix) {
+    const map = new Map();
+    for (const item of items) {
+      map.set(item.id, makeId(prefix));
+    }
+    return map;
+  }
+
+  function normalizeTabName(name) {
+    return String(name).trim().toLowerCase();
+  }
+
+  function resolveTabNameConflicts(existingNames, importedTabs) {
+    const usedNames = new Set(existingNames);
+    const resolvedTabs = [];
+
+    for (const tab of importedTabs) {
+      let baseName = tab.name.trim();
+      let candidateName = baseName;
+      let suffix = 0;
+
+      while (usedNames.has(normalizeTabName(candidateName))) {
+        suffix++;
+        candidateName = `${baseName} ${suffix}`;
+      }
+
+      usedNames.add(normalizeTabName(candidateName));
+      resolvedTabs.push({ ...tab, name: candidateName });
+    }
+
+    return resolvedTabs;
+  }
+
+  async function importBackup(backupData, mode) {
+    const validation = validateBackup(backupData);
+    if (!validation.valid) throw new Error(validation.error);
+
+    let importedTabs = backupData.tabs.map((tab) => ({
+      ...tab,
+      boards: tab.boards.map((board) => ({ ...board }))
+    }));
+
+    const hasCustomizationData = backupData.themeId !== undefined || backupData.background !== undefined || backupData.displaySettings !== undefined;
+
+    if (mode === 'replace') {
+      importedTabs = resolveTabNameConflicts(new Set(), importedTabs);
+      const homeTab = importedTabs.find((t) => t.id === 'tab-home');
+      if (!homeTab) throw new Error('Backup must contain a Home tab.');
+      state.tabs = [homeTab, ...importedTabs.filter((t) => t.id !== 'tab-home')];
+      state.activeTabId = findTab(backupData.activeTabId)?.id || 'tab-home';
+
+      if (hasCustomizationData) {
+        if (backupData.themeId) state.themeId = backupData.themeId;
+        if (backupData.customThemeColor) state.customThemeColor = backupData.customThemeColor;
+        if (backupData.customThemeMode) state.customThemeMode = backupData.customThemeMode;
+        if (backupData.customGradientColor1) state.customGradientColor1 = backupData.customGradientColor1;
+        if (backupData.customGradientColor2) state.customGradientColor2 = backupData.customGradientColor2;
+        if (backupData.customGradientType) state.customGradientType = backupData.customGradientType;
+        if (backupData.customGradientDirection) state.customGradientDirection = backupData.customGradientDirection;
+
+        if (backupData.background) {
+          const bg = { ...backupData.background };
+          const hadCustomBackground = state.savedBackground.backgroundMode === 'custom' && state.savedBackground.imageId;
+          if (bg.backgroundMode === 'custom' && bg.imageId) {
+            delete bg.imageId;
+            delete bg.imageData;
+          }
+          state.savedBackground = normalizeBackground({ background: bg });
+          if (hadCustomBackground && bg.backgroundMode !== 'custom') {
+            state.savedBackground.backgroundMode = 'custom';
+            state.savedBackground.imageId = state.savedBackground.imageId;
+          }
+        }
+        if (backupData.displaySettings) state.savedDisplaySettings = { ...backupData.displaySettings };
+      }
+    } else {
+      const existingNames = new Set(state.tabs.map((t) => normalizeTabName(t.name)));
+      importedTabs = resolveTabNameConflicts(existingNames, importedTabs);
+
+      const existingTabIds = new Set(state.tabs.map((t) => t.id));
+      const existingBoardIds = new Set(state.tabs.flatMap((t) => t.boards.map((b) => b.id)));
+      const existingLinkIds = new Set(state.tabs.flatMap((t) => t.boards.flatMap((b) => b.links.map((l) => l.id))));
+
+      const tabIdMap = new Map();
+      for (const tab of importedTabs) {
+        let newTabId = tab.id;
+        if (existingTabIds.has(tab.id) || tabIdMap.has(tab.id)) {
+          newTabId = makeId('tab');
+        }
+        tabIdMap.set(tab.id, newTabId);
+        existingTabIds.add(newTabId);
+      }
+
+      for (const tab of importedTabs) {
+        const newTabId = tabIdMap.get(tab.id);
+        const boardIdMap = new Map();
+        for (const board of tab.boards) {
+          let newBoardId = board.id;
+          if (existingBoardIds.has(board.id) || boardIdMap.has(board.id)) {
+            newBoardId = makeId('board');
+          }
+          boardIdMap.set(board.id, newBoardId);
+          existingBoardIds.add(newBoardId);
+
+          const linkIdMap = new Map();
+          for (const link of board.links) {
+            let newLinkId = link.id;
+            if (existingLinkIds.has(link.id) || linkIdMap.has(link.id)) {
+              newLinkId = makeId('link');
+            }
+            linkIdMap.set(link.id, newLinkId);
+            existingLinkIds.add(newLinkId);
+          }
+          board.links = board.links.map((link) => ({ ...link, id: linkIdMap.get(link.id) }));
+          board.id = boardIdMap.get(board.id);
+        }
+        tab.id = newTabId;
+        tab.boards = tab.boards.map((board) => ({ ...board }));
+      }
+
+      state.tabs.push(...importedTabs);
+    }
+
+    if (mode === 'replace' && hasCustomizationData) {
+      applyTheme(state.themeId, state.customThemeColor, state.customThemeMode, state.customGradientColor1, state.customGradientColor2);
+      applyDisplaySettings(state.savedDisplaySettings);
+    }
+    renderTabs();
+    renderColumns();
+    saveData();
+  }
+
+  function renderImportPreview(backupData) {
+    const tabCount = backupData.tabs.length;
+    const boardCount = backupData.tabs.reduce((sum, tab) => sum + tab.boards.length, 0);
+    const linkCount = backupData.tabs.reduce((sum, tab) => sum + tab.boards.reduce((s, b) => s + b.links.length, 0), 0);
+    const exportDate = backupData.exportedAt ? new Date(backupData.exportedAt).toLocaleString() : 'Unknown';
+    const version = backupData.version || 'Unknown';
+
+    importPreview.innerHTML = `
+      <h4>Import Preview</h4>
+      <div class="import-preview-stats">
+        <div><strong>${tabCount}</strong> tab${tabCount !== 1 ? 's' : ''}</div>
+        <div><strong>${boardCount}</strong> board${boardCount !== 1 ? 's' : ''}</div>
+        <div><strong>${linkCount}</strong> link${linkCount !== 1 ? 's' : ''}</div>
+      </div>
+      <div class="import-preview-meta">
+        <small>Exported: ${escapeHtml(exportDate)}</small>
+        <small>Format version: ${escapeHtml(String(version))}</small>
+      </div>
+      <ul class="import-preview-tabs">
+        ${backupData.tabs.map((tab) => `<li>${escapeHtml(tab.name)} (${tab.boards.length} boards)</li>`).join('')}
+      </ul>
+    `;
+    importPreview.hidden = false;
+  }
+
+  function openImportModal() {
+    closeSettings();
+    importFileInput.value = '';
+    importError.textContent = '';
+    importPreview.hidden = true;
+    importPreview.innerHTML = '';
+    importModal.querySelector('[data-import-action="confirm"]').disabled = true;
+    importModal.querySelector('input[name="importMode"][value="merge"]').checked = true;
+    importModal.querySelector('.import-options').hidden = true;
+    importModal.hidden = false;
+    importFileInput.focus();
+  }
+
+  function closeImportModal() {
+    importModal.hidden = true;
+    importFileInput.value = '';
+    importError.textContent = '';
+    importPreview.hidden = true;
+    importPreview.innerHTML = '';
+  }
+
+  function handleImportFile(file) {
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      importError.textContent = 'File too large. Maximum size is 10 MB.';
+      return;
+    }
+    if (!file.name.endsWith('.json')) {
+      importError.textContent = 'Please select a JSON file.';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        const validation = validateBackup(data);
+        if (!validation.valid) {
+          importError.textContent = validation.error;
+          return;
+        }
+        importError.textContent = '';
+        renderImportPreview(data);
+        importModal.querySelector('.import-options').hidden = false;
+        importModal.querySelector('[data-import-action="confirm"]').disabled = false;
+        importModal.dataset.backupData = JSON.stringify(data);
+      } catch {
+        importError.textContent = 'Invalid JSON file.';
+      }
+    };
+    reader.onerror = () => {
+      importError.textContent = 'Failed to read file.';
+    };
+    reader.readAsText(file);
+  }
+
+  async function confirmImport() {
+    try {
+      const backupData = JSON.parse(importModal.dataset.backupData || '{}');
+      const mode = importModal.querySelector('input[name="importMode"]:checked')?.value || 'merge';
+      if (mode === 'replace') {
+        if (!confirm('This will replace ALL your current tabs, boards, and links with the imported data. This cannot be undone. Continue?')) {
+          return;
+        }
+      }
+      await importBackup(backupData, mode);
+      showNotification(mode === 'replace' ? 'Workspace replaced with backup' : 'Backup imported and merged', 'success');
+      closeImportModal();
+    } catch (error) {
+      importError.textContent = error.message;
+    }
+  }
+
+  function resetAllData() {
+    if (!confirm('This will permanently delete ALL tabs, boards, and links, and reset settings to defaults. This cannot be undone. Continue?')) {
+      return;
+    }
+    if (!confirm('Are you absolutely sure? All your data will be lost.')) {
+      return;
+    }
+    state.tabs = [{
+      id: 'tab-home',
+      name: 'Home',
+      boards: []
+    }];
+    state.activeTabId = 'tab-home';
+    state.themeId = 'dark';
+    state.customThemeColor = '#6366f1';
+    state.customThemeMode = 'solid';
+    state.customGradientColor1 = '#6366f1';
+    state.customGradientColor2 = '#8b5cf6';
+    state.customGradientType = 'linear';
+    state.customGradientDirection = '135deg';
+    state.savedBackground = { backgroundMode: 'theme', imageId: null, imageRemoved: false, opacity: 82, darkness: 35, blur: 0, size: 'cover', position: 'center' };
+    state.savedDisplaySettings = { ...defaultDisplaySettings };
+    applyTheme(state.themeId, state.customThemeColor, state.customThemeMode, state.customGradientColor1, state.customGradientColor2);
+    applyDisplaySettings(state.savedDisplaySettings);
+    renderTabs();
+    renderColumns();
+    saveData();
+    showNotification('All data has been reset', 'success');
+  }
+
+  function showNotification(message, type = 'info') {
+    const existing = document.querySelector('.notification-toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.className = `notification-toast notification-${type}`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'polite');
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    requestAnimationFrame(() => toast.classList.add('show'));
+
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
   }
 
   function searchData(query) {
@@ -1555,13 +2037,14 @@
     if (action === 'rename') { closeContextMenu(); openNameModal(context.kind === 'tab' ? 'rename-tab' : 'rename-board', context.id); }
     if (action === 'edit') { closeContextMenu(); openLinkModal(context.boardId, context.id); }
     if (action === 'move') { closeContextMenu(); openMoveLinkModal(context.boardId, context.id); }
+    if (action === 'move-board') { closeContextMenu(); openMoveBoardModal(context.id); }
     if (action === 'open') { closeContextMenu(); window.location.href = findLink(context.boardId, context.id).url; }
     if (action === 'new-tab') { closeContextMenu(); window.open(findLink(context.boardId, context.id).url, '_blank', 'noopener,noreferrer'); }
     if (action === 'copy') { navigator.clipboard?.writeText(findLink(context.boardId, context.id).url).catch(() => { }); closeContextMenu(); }
     if (action === 'delete') { askDelete(context.kind, context.id); closeContextMenu(); }
   });
-  document.addEventListener('click', (event) => { if (!event.target.closest('.tab-context-menu')) closeContextMenu(); if (event.target === tabModal) closeNameModal(); if (event.target === confirmModal) confirmModal.hidden = true; if (event.target === moveLinkModal) closeMoveLinkModal(); });
-  document.addEventListener('keydown', (event) => { if (event.key === 'Escape') { closeContextMenu(); closeNameModal(); closeLinkModal(); closeMoveLinkModal(); closeSearch(); closeSettings(); confirmModal.hidden = true; } if (event.key === 'Enter' && !tabModal.hidden) saveName(); if (event.key === 'Enter' && !linkModal.hidden) saveLink(); });
+  document.addEventListener('click', (event) => { if (!event.target.closest('.tab-context-menu')) closeContextMenu(); if (event.target === tabModal) closeNameModal(); if (event.target === confirmModal) confirmModal.hidden = true; if (event.target === moveLinkModal) closeMoveLinkModal(); if (event.target === moveBoardModal) closeMoveBoardModal(); if (event.target === importModal) closeImportModal(); if (event.target === exportOptionsModal) closeExportOptionsModal(); });
+  document.addEventListener('keydown', (event) => { if (event.key === 'Escape') { closeContextMenu(); closeNameModal(); closeLinkModal(); closeMoveLinkModal(); closeMoveBoardModal(); closeImportModal(); closeExportOptionsModal(); closeSearch(); closeSettings(); confirmModal.hidden = true; } if (event.key === 'Enter' && !tabModal.hidden) saveName(); if (event.key === 'Enter' && !linkModal.hidden) saveLink(); });
   document.querySelector('[data-tab-action="cancel"]').addEventListener('click', closeNameModal);
   document.querySelector('[data-tab-action="confirm"]').addEventListener('click', saveName);
   iconPicker.addEventListener('click', (event) => {
@@ -1581,6 +2064,63 @@
   document.querySelector('[data-move-action="cancel"]').addEventListener('click', closeMoveLinkModal);
   document.querySelector('[data-move-action="confirm"]').addEventListener('click', moveLink);
   moveLinkModal.addEventListener('click', (event) => { if (event.target === moveLinkModal) closeMoveLinkModal(); });
+  moveBoardTabSelect.addEventListener('change', () => { state.moveBoard.targetTabId = moveBoardTabSelect.value; renderMoveBoardTargets(); });
+  moveBoardColumnSelect.addEventListener('change', () => { state.moveBoard.targetColumnId = moveBoardColumnSelect.value; });
+  document.querySelector('[data-move-board-action="cancel"]').addEventListener('click', closeMoveBoardModal);
+  document.querySelector('[data-move-board-action="confirm"]').addEventListener('click', moveBoardToTab);
+  moveBoardModal.addEventListener('click', (event) => { if (event.target === moveBoardModal) closeMoveBoardModal(); });
+
+  importFileInput.addEventListener('change', () => handleImportFile(importFileInput.files[0]));
+  document.querySelector('[data-import-action="cancel"]').addEventListener('click', closeImportModal);
+  document.querySelector('[data-import-action="confirm"]').addEventListener('click', confirmImport);
+  importModal.addEventListener('click', (event) => { if (event.target === importModal) closeImportModal(); });
+
+  document.querySelectorAll('.import-mode-card').forEach((card) => {
+    card.addEventListener('click', () => {
+      const mode = card.dataset.importMode;
+      document.querySelectorAll('input[name="importMode"]').forEach((r) => (r.checked = r.value === mode));
+      document.querySelectorAll('.import-mode-card').forEach((c) => {
+        const selected = c.dataset.importMode === mode;
+        c.classList.toggle('selected', selected);
+        c.setAttribute('aria-checked', String(selected));
+        c.tabIndex = selected ? 0 : -1;
+      });
+    });
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        card.click();
+      }
+    });
+  });
+
+  document.querySelector('[data-export-options-action="cancel"]').addEventListener('click', closeExportOptionsModal);
+  document.querySelector('[data-export-options-action="confirm"]').addEventListener('click', confirmExportOptions);
+  exportOptionsModal.addEventListener('click', (event) => { if (event.target === exportOptionsModal) closeExportOptionsModal(); });
+
+  document.querySelectorAll('.export-option-card').forEach((card) => {
+    card.addEventListener('click', () => {
+      const option = card.dataset.exportOption;
+      document.querySelectorAll('input[name="exportOption"]').forEach((r) => (r.checked = r.value === option));
+      document.querySelectorAll('.export-option-card').forEach((c) => {
+        const selected = c.dataset.exportOption === option;
+        c.classList.toggle('selected', selected);
+        c.setAttribute('aria-checked', String(selected));
+        c.tabIndex = selected ? 0 : -1;
+      });
+      exportOptionsModal.querySelector('.export-options-notice').hidden = option !== 'full';
+    });
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        card.click();
+      }
+    });
+  });
+
+  exportBackupButton.addEventListener('click', exportBackup);
+  importBackupButton.addEventListener('click', openImportModal);
+  resetDataButton.addEventListener('click', resetAllData);
 
   (() => {
     const wrapper = document.querySelector('#devBadgeWrapper');
