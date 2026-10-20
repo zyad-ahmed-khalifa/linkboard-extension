@@ -1039,7 +1039,6 @@
       </div>
       <div class="import-preview-meta">
         <small>Exported: ${escapeHtml(exportDate)}</small>
-        <small>Format version: ${escapeHtml(String(version))}</small>
       </div>
       <ul class="import-preview-tabs">
         ${backupData.tabs.map((tab) => `<li>${escapeHtml(tab.name)} (${tab.boards.length} boards)</li>`).join('')}
