@@ -1,5 +1,3 @@
-# linkboard-extension
-=======
 # 🔗 LinkBoard
 > A lightweight and customizable browser New Tab extension for organizing your favorite websites into tabs, boards, and links.
 
