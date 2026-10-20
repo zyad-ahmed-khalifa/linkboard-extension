@@ -2,6 +2,7 @@
 > A lightweight and customizable browser New Tab extension for organizing your favorite websites into tabs, boards, and links.
 
 ![LinkBoard Preview](assets/screenshots/preview.png)
+<<<<<<< HEAD
 ![LinkBoard Preview](assets/screenshots/preview2.png)
 
 ---
@@ -15,6 +16,8 @@
 - 🔄 **Flexible Import Options:** Choose **Merge** to combine imported data with your existing workspace, or **Replace** to replace your existing workspace data.
 - 🗂️ **Move Boards Between Tabs:** Move boards between tabs to organize your workspace more efficiently.
 
+=======
+>>>>>>> f13c2fc5d48c578b1d99d937b2751b7402b916dd
 
 ## 💡 Overview
 
@@ -43,6 +46,7 @@ Traditional browser bookmarks can become difficult to organize and quickly navig
 - ⚡ Provide a lightweight and responsive experience
 - 🧩 Integrate directly with the browser's New Tab page
 
+<<<<<<< HEAD
 ## 💾 Backup & Restore
 
 LinkBoard allows you to export your workspace data and import it later to restore or reorganize your workspace.
@@ -65,6 +69,43 @@ LinkBoard allows you to export your workspace data and import it later to restor
 
 
 ## 🖥️ Supported Browsers
+=======
+## 🎯 Why This Extension?
+
+Managing frequently visited websites can become messy over time. Bookmarks can grow into long lists, browser tabs can become cluttered, and finding a specific website can take unnecessary time.
+
+LinkBoard was created to provide a **simple visual workspace** where frequently used websites can be organized in a way that feels more natural and accessible.
+
+Instead of focusing on a large collection of bookmarks, LinkBoard focuses on giving users a **personalized New Tab experience** that they can organize and customize around the way they work and browse.
+
+### Key Goals
+
+- 🧠 Reduce the clutter of frequently visited websites
+- 🗂️ Make website organization feel simple and visual
+- ⚡ Make commonly used websites quick to access
+- 🎨 Give users a New Tab page they can personalize
+- 🔒 Keep the experience local without requiring an account
+- 💡 Create a lightweight and practical alternative to traditional bookmark organization
+
+  ## 🎯 Why This Extension?
+
+Managing frequently visited websites can become messy over time. Bookmarks can grow into long lists, browser tabs can become cluttered, and finding a specific website can take unnecessary time.
+
+LinkBoard was created to provide a **simple visual workspace** where frequently used websites can be organized in a way that feels more natural and accessible.
+
+Instead of focusing on a large collection of bookmarks, LinkBoard focuses on giving users a **personalized New Tab experience** that they can organize and customize around the way they work and browse.
+
+### Key Goals
+
+- 🧠 Reduce the clutter of frequently visited websites
+- 🗂️ Make website organization feel simple and visual
+- ⚡ Make commonly used websites quick to access
+- 🎨 Give users a New Tab page they can personalize
+- 🔒 Keep the experience local without requiring an account
+- 💡 Create a lightweight and practical alternative to traditional bookmark organization
+
+  ## 🖥️ Supported Browsers
+>>>>>>> f13c2fc5d48c578b1d99d937b2751b7402b916dd
 
 LinkBoard is designed primarily for **Chromium-based browsers** that support Chrome Extension Manifest V3.
 
@@ -159,6 +200,7 @@ To work on the project:
 ```text
 LinkBoard-extension/
           ├── assets
+<<<<<<< HEAD
           │   ├── icons
           │   │   ├── favicon.png
           │   │   ├── icon128.png
@@ -168,6 +210,14 @@ LinkBoard-extension/
           │   └── screenshots
           │       ├── preview2.png
           │       └── preview.png
+=======
+          │   └── icons
+          │       ├── favicon.png
+          │       ├── icon128.png
+          │       ├── icon16.png
+          │       ├── icon32.png
+          │       └── icon48.png
+>>>>>>> f13c2fc5d48c578b1d99d937b2751b7402b916dd
           ├── css
           │   └── styles.css
           ├── js
