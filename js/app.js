@@ -87,6 +87,8 @@
   const searchInput = document.querySelector('#searchInput');
   const searchResults = document.querySelector('#searchResults');
   const settingsButton = document.querySelector('#settingsButton');
+  const backupStatusButton = document.querySelector('#backupStatusButton');
+  const backupStatusText = document.querySelector('#backupStatusButton .backup-status-text');
   const settingsModal = document.querySelector('#settingsModal');
   let settingsNavItems = document.querySelectorAll('[data-settings-tab]');
   let settingsPanels = document.querySelectorAll('[data-settings-panel]');
@@ -697,7 +699,7 @@
     if (!storageArea) return Promise.resolve(false);
     const payload = { [STORAGE_KEY]: { tabs: state.tabs, activeTabId: state.activeTabId, themeId: state.themeId, customThemeColor: state.customThemeColor, customThemeMode: state.customThemeMode, customGradientColor1: state.customGradientColor1, customGradientColor2: state.customGradientColor2, customGradientType: state.customGradientType, customGradientDirection: state.customGradientDirection, background: backgroundOverride, displaySettings: displayOverride } };
     saveQueue = saveQueue.then(async () => {
-      try { await storageArea.set(payload); return true; } catch { return false; }
+      try { await storageArea.set(payload); scheduleUpdateBackupBadge(); return true; } catch { return false; }
     });
     return saveQueue;
   }
@@ -801,6 +803,111 @@
     return backup;
   }
 
+  const BACKUP_STATUS_KEY = 'linkboardBackupStatus';
+  let backupStatus = { fingerprint: null };
+  let backupStatusLoaded = false;
+  let backupBadgeTimer = null;
+  let pendingExportFingerprint = null;
+  let pendingExportDownloadId = null;
+  let backupDownloadWatcherAdded = false;
+
+  function canonicalizeValue(value) {
+    if (Array.isArray(value)) return value.map(canonicalizeValue);
+    if (value && typeof value === 'object') {
+      const result = {};
+      for (const key of Object.keys(value).sort()) result[key] = canonicalizeValue(value[key]);
+      return result;
+    }
+    return value;
+  }
+
+  function buildBackupFingerprint(includeCustomization, backup) {
+    const snapshot = { version: BACKUP_VERSION, tabs: canonicalizeValue(backup.tabs) };
+    if (includeCustomization) {
+      snapshot.customization = true;
+      snapshot.themeId = backup.themeId;
+      snapshot.customThemeColor = backup.customThemeColor;
+      snapshot.customThemeMode = backup.customThemeMode;
+      snapshot.customGradientColor1 = backup.customGradientColor1;
+      snapshot.customGradientColor2 = backup.customGradientColor2;
+      snapshot.customGradientType = backup.customGradientType;
+      snapshot.customGradientDirection = backup.customGradientDirection;
+      snapshot.background = canonicalizeValue(backup.background);
+      snapshot.displaySettings = canonicalizeValue(backup.displaySettings);
+    }
+    return JSON.stringify(snapshot);
+  }
+
+  function currentBackupFingerprint(includeCustomization) {
+    return buildBackupFingerprint(includeCustomization, createBackupData(includeCustomization));
+  }
+
+  function hasBackupableData() {
+    return state.tabs.length > 1 || state.tabs.some((tab) => tab.boards.some((board) => board.links.length > 0));
+  }
+
+  function isBackupUpToDate() {
+    if (!backupStatusLoaded) return true;
+    if (!backupStatus.fingerprint) return !hasBackupableData();
+    try {
+      const saved = JSON.parse(backupStatus.fingerprint);
+      return saved.version === BACKUP_VERSION && currentBackupFingerprint(Boolean(saved.customization)) === backupStatus.fingerprint;
+    } catch {
+      return false;
+    }
+  }
+
+  function updateBackupBadge() {
+    if (!backupStatusButton) return;
+    const upToDate = isBackupUpToDate();
+    backupStatusButton.classList.toggle('backup-outdated', !upToDate);
+    const label = upToDate ? 'Backup is up to date' : 'Backup needs updating';
+    backupStatusButton.title = label;
+    backupStatusButton.setAttribute('aria-label', label);
+    if (backupStatusText) backupStatusText.textContent = upToDate ? 'Backup up to date ✓' : 'Backup needs updating ⚠️';
+  }
+
+  function scheduleUpdateBackupBadge() {
+    if (backupBadgeTimer) clearTimeout(backupBadgeTimer);
+    backupBadgeTimer = setTimeout(() => { backupBadgeTimer = null; updateBackupBadge(); }, 300);
+  }
+
+  async function loadBackupStatus() {
+    if (storageArea) {
+      try {
+        const result = await storageArea.get(BACKUP_STATUS_KEY);
+        const stored = result[BACKUP_STATUS_KEY];
+        if (stored && typeof stored.fingerprint === 'string') backupStatus = stored;
+      } catch { }
+    }
+    backupStatusLoaded = true;
+    updateBackupBadge();
+  }
+
+  async function commitBackupFingerprint(fingerprint) {
+    backupStatus = { fingerprint: typeof fingerprint === 'string' ? fingerprint : null };
+    if (storageArea) {
+      try { await storageArea.set({ [BACKUP_STATUS_KEY]: backupStatus }); } catch { }
+    }
+    updateBackupBadge();
+  }
+
+  function registerBackupDownloadWatcher() {
+    if (backupDownloadWatcherAdded || typeof chrome === 'undefined' || !chrome.downloads?.onChanged) return;
+    backupDownloadWatcherAdded = true;
+    chrome.downloads.onChanged.addListener((delta) => {
+      if (!pendingExportFingerprint || delta.id !== pendingExportDownloadId || !delta.state) return;
+      if (delta.state.current === 'complete') {
+        commitBackupFingerprint(pendingExportFingerprint);
+        pendingExportFingerprint = null;
+        pendingExportDownloadId = null;
+      } else if (delta.state.current === 'interrupted') {
+        pendingExportFingerprint = null;
+        pendingExportDownloadId = null;
+      }
+    });
+  }
+
   function openExportOptionsModal() {
     closeSettings();
     exportOptionsError.textContent = '';
@@ -823,8 +930,10 @@
   }
 
   async function performExport(includeCustomization) {
+    let exportFingerprint = null;
     try {
       const backup = createBackupData(includeCustomization);
+      exportFingerprint = buildBackupFingerprint(includeCustomization, backup);
       const json = JSON.stringify(backup, null, 2);
       const blob = new Blob([json], { type: 'application/json' });
       const date = new Date();
@@ -832,12 +941,17 @@
       const suffix = includeCustomization ? '-full' : '';
       const filename = `linkboard-backup${suffix}-${dateStr}.json`;
       if (typeof chrome !== 'undefined' && chrome.downloads) {
+        registerBackupDownloadWatcher();
         const url = URL.createObjectURL(blob);
         chrome.downloads.download({ url, filename, saveAs: true }, (downloadId) => {
           URL.revokeObjectURL(url);
-          if (chrome.runtime.lastError) {
-            showNotification('Export failed: ' + chrome.runtime.lastError.message, 'error');
+          if (chrome.runtime.lastError || typeof downloadId !== 'number' || downloadId < 0) {
+            pendingExportFingerprint = null;
+            pendingExportDownloadId = null;
+            showNotification('Export failed: ' + (chrome.runtime.lastError?.message || 'Download could not be started.'), 'error');
           } else {
+            pendingExportDownloadId = downloadId;
+            pendingExportFingerprint = exportFingerprint;
             showNotification('Backup exported successfully', 'success');
           }
         });
@@ -850,9 +964,12 @@
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+        commitBackupFingerprint(exportFingerprint);
         showNotification('Backup exported successfully', 'success');
       }
     } catch (error) {
+      pendingExportFingerprint = null;
+      pendingExportDownloadId = null;
       showNotification('Export failed: ' + error.message, 'error');
     }
   }
@@ -2120,6 +2237,10 @@
   exportBackupButton.addEventListener('click', exportBackup);
   importBackupButton.addEventListener('click', openImportModal);
   resetDataButton.addEventListener('click', resetAllData);
+  backupStatusButton.addEventListener('click', () => {
+    openSettings();
+    setSettingsPanel('data');
+  });
 
   (() => {
     const wrapper = document.querySelector('#devBadgeWrapper');
@@ -2142,6 +2263,7 @@
     applyTheme(state.themeId, state.customThemeColor, state.customThemeMode, state.customGradientColor1, state.customGradientColor2);
     applyDisplaySettings(state.savedDisplaySettings);
     loadStoredBackground();
+    loadBackupStatus();
     renderTabs();
     renderColumns();
     document.body.classList.remove('is-loading');

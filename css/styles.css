@@ -192,6 +192,46 @@ button:focus-visible, a:focus-visible {
   border-radius: var(--radius-sm)
 }
 
+.backup-status-button {
+  position: relative;
+  color: var(--text-muted);
+  width: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px
+}
+
+.backup-status-text {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap
+}
+
+.backup-status-button:hover {
+  color: var(--text)
+}
+
+.backup-status-dot {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #f59e0b;
+  box-shadow: 0 0 0 2px var(--bg)
+}
+
+.backup-status-button.backup-outdated .backup-status-dot {
+  display: block
+}
+
+.backup-status-button.backup-outdated {
+  color: #f59e0b
+}
+
 svg {
   width: 16px;
   height: 16px;
